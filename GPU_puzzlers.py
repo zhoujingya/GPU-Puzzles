@@ -7,14 +7,14 @@
 # GPU architectures are critical to machine learning, and seem to be
 # becoming even more important every day. However, you can be an expert
 # in machine learning without ever touching GPU code. It is hard to gain
-# intuition working through abstractions. 
+# intuition working through abstractions.
 
 # This notebook is an attempt to teach beginner GPU programming in a
 # completely interactive fashion. Instead of providing text with
 # concepts, it throws you right into coding and building GPU
 # kernels. The exercises use NUMBA which directly maps Python
 # code to CUDA kernels. It looks like Python but is basically
-# identical to writing low-level CUDA code. 
+# identical to writing low-level CUDA code.
 # In a few hours, I think you can go from basics to
 # understanding the real algorithms that power 99% of deep learning
 # today. If you do want to read the manual, it is here:
@@ -30,9 +30,10 @@
 # (If you are into this style of puzzle, also check out my [Tensor
 # Puzzles](https://github.com/srush/Tensor-Puzzles) for PyTorch.)
 
-!pip install -qqq git+https://github.com/danoneata/chalk@srush-patch-1
-!wget -q https://github.com/srush/GPU-Puzzles/raw/main/robot.png https://github.com/srush/GPU-Puzzles/raw/main/lib.py
+# !pip install -qqq git+https://github.com/danoneata/chalk@srush-patch-1
+# !wget -q https://github.com/srush/GPU-Puzzles/raw/main/robot.png https://github.com/srush/GPU-Puzzles/raw/main/lib.py
 
+# %%
 
 import numba
 import numpy as np
@@ -55,15 +56,15 @@ warnings.filterwarnings(
 # like shape or size (if you need the size, it is given as an argument).
 # The puzzles only require doing simple operations, basically
 # +, *, simple array indexing, for loops, and if statements.
-# You are allowed to use local variables. 
+# You are allowed to use local variables.
 # If you get an
-# error it is probably because you did something fancy :). 
+# error it is probably because you did something fancy :).
 
 
 # *Tip: Think of the function `call` as being run 1 time for each thread.
 # The only difference is that `cuda.threadIdx.x` changes each time.*
 
-# +
+# %%
 def map_spec(a):
     return a + 10
 
@@ -72,6 +73,7 @@ def map_test(cuda):
     def call(out, a) -> None:
         local_i = cuda.threadIdx.x
         # FILL ME IN (roughly 1 lines)
+        out[local_i] = a[local_i] + 10
 
     return call
 
@@ -84,10 +86,10 @@ problem = CudaProblem(
 )
 problem.show()
 
-# +
 problem.check()
 # -
 
+# %%
 # ## Puzzle 2 - Zip
 #
 # Implement a kernel that adds together each position of `a` and `b` and stores it in `out`.
@@ -101,7 +103,7 @@ def zip_spec(a, b):
 def zip_test(cuda):
     def call(out, a, b) -> None:
         local_i = cuda.threadIdx.x
-        # FILL ME IN (roughly 1 lines)
+        out[local_i] = a[local_i] + b[local_i]
 
     return call
 
@@ -120,6 +122,7 @@ problem.show()
 problem.check()
 # -
 
+# %%
 # ## Puzzle 3 - Guards
 #
 # Implement a kernel that adds 10 to each position of `a` and stores it in `out`.
@@ -129,7 +132,8 @@ problem.check()
 def map_guard_test(cuda):
     def call(out, a, size) -> None:
         local_i = cuda.threadIdx.x
-        # FILL ME IN (roughly 2 lines)
+        if local_i < size:
+            out[local_i] = a[local_i] + 10
 
     return call
 
@@ -152,6 +156,7 @@ problem.show()
 problem.check()
 # -
 
+# %%
 # ## Puzzle 4 - Map 2D
 #
 # Implement a kernel that adds 10 to each position of `a` and stores it in `out`.
@@ -163,6 +168,8 @@ def map_2D_test(cuda):
         local_i = cuda.threadIdx.x
         local_j = cuda.threadIdx.y
         # FILL ME IN (roughly 2 lines)
+        if local_i < size and local_j < size:
+            out[local_i, local_j] = a[local_i, local_j] + 10
 
     return call
 
@@ -175,10 +182,11 @@ problem = CudaProblem(
 )
 problem.show()
 
-# +
+
 problem.check()
 # -
 
+# %%
 # ## Puzzle 5 - Broadcast
 #
 # Implement a kernel that adds `a` and `b` and stores it in `out`.
@@ -213,6 +221,7 @@ problem.show()
 problem.check()
 # -
 
+# %%
 # ## Puzzle 6 - Blocks
 #
 # Implement a kernel that adds 10 to each position of `a` and stores it in `out`.
@@ -245,10 +254,11 @@ problem = CudaProblem(
 )
 problem.show()
 
-# +
+# %%
 problem.check()
 # -
 
+# %%
 # ## Puzzle 7 - Blocks 2D
 #
 # Implement the same kernel in 2D.  You have fewer threads per block
@@ -282,7 +292,7 @@ problem.show()
 # +
 problem.check()
 # -
-
+# %%
 # ## Puzzle 8 - Shared
 #
 # Implement a kernel that adds 10 to each position of `a` and stores it in `out`.
@@ -332,6 +342,7 @@ problem.show()
 problem.check()
 # -
 
+# %%
 # ## Puzzle 9 - Pooling
 #
 # Implement a kernel that sums together the last 3 position of `a` and stores it in `out`.
@@ -377,6 +388,7 @@ problem.show()
 problem.check()
 # -
 
+# %%
 # ## Puzzle 10 - Dot Product
 #
 # Implement a kernel that computes the dot-product of `a` and `b` and stores it in `out`.
@@ -420,6 +432,7 @@ problem.show()
 problem.check()
 # -
 
+# %%
 # ## Puzzle 11 - 1D Convolution
 #
 # Implement a kernel that computes a 1D convolution between `a` and `b` and stores it in `out`.
@@ -448,6 +461,7 @@ def conv_test(cuda):
     return call
 
 
+# %%
 # Test 1
 
 SIZE = 6
@@ -494,6 +508,7 @@ problem.show()
 problem.check()
 # -
 
+# %%
 # ## Puzzle 12 - Prefix Sum
 #
 # Implement a kernel that computes a sum over `a` and stores it in `out`.
@@ -524,7 +539,7 @@ def sum_test(cuda):
 
     return call
 
-
+# %%
 # Test 1
 
 SIZE = 8
@@ -546,6 +561,7 @@ problem.show()
 problem.check()
 # -
 
+# %%
 # Test 2
 
 # +
@@ -612,6 +628,7 @@ problem.show()
 problem.check()
 # -
 
+# %%
 # ## Puzzle 14 - Matrix Multiply!
 #
 # Implement a kernel that multiplies square matrices `a` and `b` and
