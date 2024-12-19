@@ -198,6 +198,8 @@ def broadcast_test(cuda):
         local_i = cuda.threadIdx.x
         local_j = cuda.threadIdx.y
         # FILL ME IN (roughly 2 lines)
+        if local_j < size and local_i < size:
+            out[local_j, local_i] = a[local_i, 0] + b[0, local_j]
 
     return call
 
