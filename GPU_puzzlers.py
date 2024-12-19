@@ -236,7 +236,8 @@ problem.check()
 def map_block_test(cuda):
     def call(out, a, size) -> None:
         i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
-        # FILL ME IN (roughly 2 lines)
+        if i < size:
+         out[i] = a[i] + 10
 
     return call
 
@@ -256,7 +257,6 @@ problem = CudaProblem(
 )
 problem.show()
 
-# %%
 problem.check()
 # -
 
@@ -269,8 +269,10 @@ problem.check()
 # +
 def map_block2D_test(cuda):
     def call(out, a, size) -> None:
-        i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
-        # FILL ME IN (roughly 4 lines)
+        x = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
+        y = cuda.blockIdx.y * cuda.blockDim.y + cuda.threadIdx.y
+        if x < size and y < size:
+            out[x, y] = a[x, y] + 10
 
     return call
 
