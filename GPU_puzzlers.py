@@ -427,7 +427,29 @@ def dot_test(cuda):
 
         i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
         local_i = cuda.threadIdx.x
-        # FILL ME IN (roughly 9 lines)
+
+        # Initialize shared memory
+        shared[local_i] = 0
+        cuda.syncthreads()
+
+        # Compute product for this thread's position
+        if i < size:
+            shared[local_i] = a[i] * b[i]
+            cuda.syncthreads()
+
+        # Reduction in shared memory
+        # Reduction operation nums : 8
+        stride = TPB // 2
+        while stride > 0:
+            if local_i < stride and local_i + stride < TPB:
+                shared[local_i] += shared[local_i + stride]
+            cuda.syncthreads()
+            stride //= 2
+        print(local_i)
+        # Write final result
+        if local_i == 0:
+            out[0] = shared[0]
+
     return call
 
 
