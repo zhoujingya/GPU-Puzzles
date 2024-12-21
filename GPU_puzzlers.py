@@ -296,7 +296,9 @@ problem.show()
 # +
 problem.check()
 # -
+
 # %%
+
 # ## Puzzle 8 - Shared
 #
 # Implement a kernel that adds 10 to each position of `a` and stores it in `out`.
@@ -323,6 +325,8 @@ def shared_test(cuda):
             cuda.syncthreads()
 
         # FILL ME IN (roughly 2 lines)
+        if i< size:
+            out[i] = a[i] + 10
 
     return call
 
@@ -368,14 +372,25 @@ def pool_test(cuda):
         shared = cuda.shared.array(TPB, numba.float32)
         i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
         local_i = cuda.threadIdx.x
-        # FILL ME IN (roughly 8 lines)
+
+        # Load data into shared memory
+        if i < size:
+            shared[local_i] = a[i]
+        cuda.syncthreads()
+
+        if i < size:
+            # Calculate sum of last 3 positions
+            val = 0.0
+            for j in range(max(local_i - 2, 0), local_i + 1):
+                val += shared[j]
+            out[i] = val
 
     return call
 
 
 SIZE = 8
 out = np.zeros(SIZE)
-a = np.arange(SIZE)
+a = np.arange(SIZE) # (0 1 2 3 4 5 6 7)
 problem = CudaProblem(
     "Pooling",
     pool_test,
